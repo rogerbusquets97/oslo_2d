@@ -33,8 +33,10 @@ void my_update(void* user_data)
 {
     my_data_t* data = (my_data_t*)user_data;
 
+    vec2 mpos = oslo_get_mouse_position();
+    
     oslo_gfx_begin();
-    oslo_gfx_draw_texture(v2(100, 100), 0.0f, v2(64, 64), OSLO_COLOR_WHITE, data->texture);
+    oslo_gfx_draw_texture(v2(mpos.x, mpos.y), 0.0f, v2(64, 64), OSLO_COLOR_WHITE, data->texture);
     oslo_gfx_end();
 }
 
