@@ -54,11 +54,11 @@ oslo_desc_t oslo_main()
       .window_width = 640,
       .window_height = 480,
       .window_title = "Example 01",
-      .user_data = NULL,
+      .user_data = data,
       .init = my_init,
       .update = my_update,
       .shutdown = my_shutdown,
-      .on_oslo_error = data,
+      .on_oslo_error = NULL,
       .max_fps = 60
     };
 }
