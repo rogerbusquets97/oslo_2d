@@ -1,5 +1,18 @@
 #pragma once
 
+/*
+    Header Only file heavily inspired by https://github.com/MrFrenik/gunslinger
+    This is an attempt to make fast 2D game protoyping, without having to worry about 
+    low level stuff.
+    
+    + 2D sprite batch rendering
+    + User input
+    + Text Rendering
+    + Sound
+
+    Both containers and math stuff is mostly taken from https://github.com/MrFrenik/gunslinger
+*/
+
 #pragma region INCLUDES
 #include <stdarg.h>     // valist
 #include <stddef.h>     // ptrdiff_t

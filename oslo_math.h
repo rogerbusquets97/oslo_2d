@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+    Math utils, most of them from https://github.com/MrFrenik/gunslinger
+*/
+
 #include "defines.h"
 #include <math.h>       // floor, acos, sin, sqrt, tan
 
