@@ -10,7 +10,7 @@ C99 framework to get started with 2D application.
 - User Input
 - Audio
 
-This is not intended to be the most performant solution, but a way to quickly start prototyping 2D stuff. 
+This is not intended to be the most performant or feature-rich solution, but a way to quickly start prototyping 2D stuff. 
 ## Basic Example
 A simple c99 example using:
 
