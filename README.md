@@ -1,4 +1,4 @@
-# oslo_2d
+# Oslo 2D
 Header only 2D framework heavily inspired by https://github.com/MrFrenik/gunslinger. (definetely check this out).
 
 C99 framework to get started with 2D application.
