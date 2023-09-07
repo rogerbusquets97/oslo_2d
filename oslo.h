@@ -33,6 +33,27 @@
 #pragma region PLATFORM_DEFINES
 
 /*===================
+// OSLO_API
+===================*/ 
+
+#ifdef OSLO_API_DLL_EXPORT
+    #ifdef __cplusplus
+        #define OSLO_API_EXTERN extern "C" __declspec(dllexport)
+    #else
+        #define OSLO_API_EXTERN extern __declspec(dllexport)
+    #endif
+#else
+    #ifdef __cplusplus
+        #define OSLO_API_EXTERN extern "C"
+    #else
+        #define OSLO_API_EXTERN extern
+    #endif
+#endif
+
+#define OSLO_API_DECL     OSLO_API_EXTERN
+#define OSLO_API_PRIVATE  OSLO_API_EXTERN 
+
+/*===================
 // PLATFORM DEFINES
 ===================*/ 
 
@@ -107,7 +128,7 @@ typedef struct oslo_dyn_array
 #define oslo_dyn_array_full(__ARR)\
     ((oslo_dyn_array_size((__ARR)) == oslo_dyn_array_capacity((__ARR))))    
 
-void* oslo_dyn_array_resize_impl(void* arr, size_t sz, size_t amount);
+OSLO_API_DECL void* oslo_dyn_array_resize_impl(void* arr, size_t sz, size_t amount);
 
 #define oslo_dyn_array_need_grow(__ARR, __N)\
     ((__ARR) == 0 || oslo_dyn_array_size(__ARR) + (__N) >= oslo_dyn_array_capacity(__ARR))
@@ -118,9 +139,9 @@ void* oslo_dyn_array_resize_impl(void* arr, size_t sz, size_t amount);
 #define oslo_dyn_array_grow_size(__ARR, __SZ  )\
     oslo_dyn_array_resize_impl((__ARR), (__SZ ), oslo_dyn_array_capacity(__ARR) ? oslo_dyn_array_capacity(__ARR) * 2 : 1)
 
-void** oslo_dyn_array_init(void** arr, size_t val_len);
+OSLO_API_DECL void** oslo_dyn_array_init(void** arr, size_t val_len);
 
-void oslo_dyn_array_push_data(void** arr, void* val, size_t val_len);
+OSLO_API_DECL void oslo_dyn_array_push_data(void** arr, void* val, size_t val_len);
 
 oslo_inline void oslo_dyn_array_set_data_i(void** arr, void* val, size_t val_len, uint32_t offset)
 {
@@ -230,8 +251,7 @@ uint32_t __oslo_slot_array_find_next_available_index(oslo_dyn_array(uint32_t) in
     return idx;
 }
 
- void** 
-oslo_slot_array_init(void** sa, size_t sz);
+OSLO_API_DECL void** oslo_slot_array_init(void** sa, size_t sz);
 
 #define oslo_slot_array_init_all(__SA)\
     (oslo_slot_array_init((void**)&(__SA), sizeof(*(__SA))), oslo_dyn_array_init((void**)&((__SA)->indices), sizeof(uint32_t)),\
@@ -441,24 +461,24 @@ typedef struct oslo_audio_t
     oslo_audio_commit commit;
 } oslo_audio_t;
 
-void oslo_audio_register_commit(oslo_audio_commit commit);
-oslo_audio_source_id oslo_audio_load_from_file(const char* path);
-oslo_audio_instance_id oslo_audio_create_instance(oslo_audio_instance_t* inst);
-void oslo_audio_mutex_lock();
-void oslo_audio_mutex_unlock();
+OSLO_API_DECL void oslo_audio_register_commit(oslo_audio_commit commit);
+OSLO_API_DECL oslo_audio_source_id oslo_audio_load_from_file(const char* path);
+OSLO_API_DECL oslo_audio_instance_id oslo_audio_create_instance(oslo_audio_instance_t* inst);
+OSLO_API_DECL void oslo_audio_mutex_lock();
+OSLO_API_DECL void oslo_audio_mutex_unlock();
 
-void oslo_audio_play_source(oslo_audio_source_id src, float volume);
-void oslo_audio_play(oslo_audio_instance_id inst);
-void oslo_audio_pause(oslo_audio_instance_id inst);
-void oslo_audio_stop(oslo_audio_instance_id inst);
-void oslo_audio_restart(oslo_audio_instance_id inst);
-bool oslo_audio_is_playing(oslo_audio_instance_id inst);
-float oslo_audio_get_volume(oslo_audio_instance_id inst);
-void oslo_audio_set_volume(oslo_audio_instance_id inst, float volume);
+OSLO_API_DECL void oslo_audio_play_source(oslo_audio_source_id src, float volume);
+OSLO_API_DECL void oslo_audio_play(oslo_audio_instance_id inst);
+OSLO_API_DECL void oslo_audio_pause(oslo_audio_instance_id inst);
+OSLO_API_DECL void oslo_audio_stop(oslo_audio_instance_id inst);
+OSLO_API_DECL void oslo_audio_restart(oslo_audio_instance_id inst);
+OSLO_API_DECL bool oslo_audio_is_playing(oslo_audio_instance_id inst);
+OSLO_API_DECL float oslo_audio_get_volume(oslo_audio_instance_id inst);
+OSLO_API_DECL void oslo_audio_set_volume(oslo_audio_instance_id inst, float volume);
 
-bool oslo_audio_load_ogg_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
-bool oslo_audio_load_wav_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
-bool oslo_audio_load_mp3_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
+OSLO_API_DECL bool oslo_audio_load_ogg_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
+OSLO_API_DECL bool oslo_audio_load_wav_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
+OSLO_API_DECL bool oslo_audio_load_mp3_from_file(const char* path, int32_t* sample_count, int32_t* channels, int32_t* sample_rate, void** samples);
 
 #pragma endregion
 
@@ -493,7 +513,6 @@ typedef struct oslo_desc_t
 	u32 window_width;
 	u32 window_height;
 	const char* window_title;
-	bool debug_graphics;
     float max_fps;
 
 	void(*init)(void*);
@@ -773,55 +792,56 @@ typedef struct oslo_font_t
 #pragma endregion
 
 #pragma region OSLO_GFX
-void oslo_gfx_begin();
-void oslo_gfx_end();
-void oslo_gfx_draw_quad(vec2 position, float rotation, vec2 size, vec4 color);
-oslo_texture_id oslo_gfx_load_texture(const char* path);
-void oslo_gfx_unload_texture(oslo_texture_id texture);
-void oslo_gfx_draw_texture(vec2 position, float rotation, vec2 size, vec4 tint, oslo_texture_id texture);
-void oslo_gfx_draw_texture_section(vec2 position, float rotation, vec2 size, vec4 tint, oslo_texture_id texture, oslo_rect_t rect, bool flip_horizontal);
-void oslo_gfx_draw_textured_quad(vec4 quad[4], vec4 tint, oslo_texture_id texture, oslo_rect_t rect, bool flip_horizontal);
-oslo_texture_id oslo_gfx_create_texture(void* data, uint32_t width, uint32_t height, uint32_t num_channels);
-void oslo_gfx_text(const char* text, vec2 position, float size, vec4 color, oslo_font_t* font);
-bool oslo_gfx_quad_batch_create(size_t max_quads, oslo_gfx_quad_batch_t* out_batch);
-void oslo_gfx_quad_batch_destroy(oslo_gfx_quad_batch_t* batch);
-void oslo_gfx_quad_batch_render(oslo_gfx_quad_batch_t* batch);
-void oslo_gfx_quad_batch_update_content(oslo_gfx_quad_batch_t* batch);
-void oslo_gfx_quad_batch_reset(oslo_gfx_quad_batch_t* batch);
-bool oslo_gfx_quad_batch_is_full(oslo_gfx_quad_batch_t* batch);
-void oslo_gfx_quad_batch_draw_quad(oslo_gfx_quad_batch_t* batch, draw_quad_desc_t* desc);
-void oslo_gfx_quad_batch_draw_texture_section(oslo_gfx_quad_batch_t* batch, draw_texture_section_desc_t* desc);
-void oslo_gfx_quad_batch_draw_textured_quad(oslo_gfx_quad_batch_t* batch, draw_textured_quad_desc_t* desc);
-void oslo_gfx_quad_batch_draw_texture(oslo_gfx_quad_batch_t* batch, draw_texture_desc_t* desc);
+OSLO_API_DECL void oslo_gfx_begin();
+OSLO_API_DECL void oslo_gfx_end();
+OSLO_API_DECL void oslo_gfx_draw_quad(vec2 position, float rotation, vec2 size, vec4 color);
+OSLO_API_DECL oslo_texture_id oslo_gfx_load_texture(const char* path);
+OSLO_API_DECL void oslo_gfx_unload_texture(oslo_texture_id texture);
+OSLO_API_DECL void oslo_gfx_draw_texture(vec2 position, float rotation, vec2 size, vec4 tint, oslo_texture_id texture);
+OSLO_API_DECL void oslo_gfx_draw_texture_section(vec2 position, float rotation, vec2 size, vec4 tint, oslo_texture_id texture, oslo_rect_t rect, bool flip_horizontal);
+OSLO_API_DECL void oslo_gfx_draw_textured_quad(vec4 quad[4], vec4 tint, oslo_texture_id texture, oslo_rect_t rect, bool flip_horizontal);
+OSLO_API_DECL oslo_texture_id oslo_gfx_create_texture(void* data, uint32_t width, uint32_t height, uint32_t num_channels);
+OSLO_API_DECL void oslo_gfx_text(const char* text, vec2 position, float size, vec4 color, oslo_font_t* font);
+OSLO_API_DECL bool oslo_gfx_quad_batch_create(size_t max_quads, oslo_gfx_quad_batch_t* out_batch);
+OSLO_API_DECL void oslo_gfx_quad_batch_destroy(oslo_gfx_quad_batch_t* batch);
+OSLO_API_DECL void oslo_gfx_quad_batch_render(oslo_gfx_quad_batch_t* batch);
+OSLO_API_DECL void oslo_gfx_quad_batch_update_content(oslo_gfx_quad_batch_t* batch);
+OSLO_API_DECL void oslo_gfx_quad_batch_reset(oslo_gfx_quad_batch_t* batch);
+OSLO_API_DECL bool oslo_gfx_quad_batch_is_full(oslo_gfx_quad_batch_t* batch);
+OSLO_API_DECL void oslo_gfx_quad_batch_draw_quad(oslo_gfx_quad_batch_t* batch, draw_quad_desc_t* desc);
+OSLO_API_DECL void oslo_gfx_quad_batch_draw_texture_section(oslo_gfx_quad_batch_t* batch, draw_texture_section_desc_t* desc);
+OSLO_API_DECL void oslo_gfx_quad_batch_draw_textured_quad(oslo_gfx_quad_batch_t* batch, draw_textured_quad_desc_t* desc);
+OSLO_API_DECL void oslo_gfx_quad_batch_draw_texture(oslo_gfx_quad_batch_t* batch, draw_texture_desc_t* desc);
 #pragma endregion
 
 #pragma region FILESYSTEM
-char* oslo_read_file_contents(const char* file_path, const char* mode, size_t* sz);
-int32_t oslo_file_size_in_bytes(const char* file_path);
+OSLO_API_DECL char* oslo_read_file_contents(const char* file_path, const char* mode, size_t* sz);
+OSLO_API_DECL int32_t oslo_file_size_in_bytes(const char* file_path);
 #pragma endregion
 
 #pragma region FONTS
 // Fonts
-bool oslo_load_font_from_file(const char* path, uint32_t point_size, oslo_font_t* out_font);
-bool oslo_load_font_from_memory(void* memory, size_t len, uint32_t point_size, oslo_font_t* out_fount);
-void oslo_unload_font(oslo_font_t* font);
+OSLO_API_DECL bool oslo_load_font_from_file(const char* path, uint32_t point_size, oslo_font_t* out_font);
+OSLO_API_DECL bool oslo_load_font_from_memory(void* memory, size_t len, uint32_t point_size, oslo_font_t* out_fount);
+OSLO_API_DECL void oslo_unload_font(oslo_font_t* font);
 #pragma endregion
 
 #pragma region INPUT
 // Input
-b32 oslo_is_key_pressed(oslo_keycode code);
-b32 oslo_was_key_pressed(oslo_keycode code);
-b32 oslo_is_key_released(oslo_keycode code);
-vec2 oslo_get_mouse_position();
-vec2 oslo_get_mouse_delta();
-b32 oslo_is_mouse_button_pressed(oslo_mouse_button_code code);
-b32 oslo_was_mouse_button_pressed(oslo_mouse_button_code code);
-b32 oslo_is_mouse_button_released(oslo_mouse_button_code code);
+OSLO_API_DECL b32 oslo_is_key_pressed(oslo_keycode code);
+OSLO_API_DECL b32 oslo_was_key_pressed(oslo_keycode code);
+OSLO_API_DECL b32 oslo_is_key_released(oslo_keycode code);
+OSLO_API_DECL vec2 oslo_get_mouse_position();
+OSLO_API_DECL vec2 oslo_get_mouse_delta();
+OSLO_API_DECL b32 oslo_is_mouse_button_pressed(oslo_mouse_button_code code);
+OSLO_API_DECL b32 oslo_was_mouse_button_pressed(oslo_mouse_button_code code);
+OSLO_API_DECL b32 oslo_is_mouse_button_released(oslo_mouse_button_code code);
 
 #pragma endregion
 
 #pragma region WINDOW
-void oslo_set_window_title(const char* title);
+OSLO_API_DECL void oslo_set_window_title(const char* title);
+OSLO_API_DECL void* oslo_get_window_native_handle();
 #pragma endregion
 
 #pragma region HASH
@@ -864,12 +884,23 @@ uint32_t oslo_hash_str(const char* str)
     return hash;
 }
 
+oslo_inline uint32_t 
+string_length(const char* txt)
+{
+    uint32_t sz = 0;
+    while (txt != NULL && txt[ sz ] != '\0') 
+    {
+        sz++;
+    }
+    return sz;
+}
+
 oslo_inline 
 uint64_t oslo_hash_str64(const char* str)
 {
     uint32_t hash1 = 5381;
     uint32_t hash2 = 52711;
-    uint32_t i = oslo_string_length(str);
+    uint32_t i = string_length(str);
     while(i--) 
     {
         char c = str[ i ];
@@ -890,8 +921,8 @@ bool oslo_compare_bytes(void* b0, void* b1, size_t len)
 #define OSLO_SIZE_T_BITS  ((sizeof(size_t)) * 8)
 #define OSLO_SIPHASH_C_ROUNDS 1
 #define OSLO_SIPHASH_D_ROUNDS 1
-#define OSLO_rotate_left(__V, __N)   (((__V) << (__N)) | ((__V) >> (oslo_SIZE_T_BITS - (__N))))
-#define OSLO_rotate_right(__V, __N)  (((__V) >> (__N)) | ((__V) << (oslo_SIZE_T_BITS - (__N))))
+#define oslo_rotate_left(__V, __N)   (((__V) << (__N)) | ((__V) >> (OSLO_SIZE_T_BITS - (__N))))
+#define oslo_rotate_right(__V, __N)  (((__V) >> (__N)) | ((__V) << (OSLO_SIZE_T_BITS - (__N))))
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -1048,7 +1079,7 @@ typedef enum oslo_hash_table_entry_state
 #define oslo_hash_table_new(__K, __V)\
     NULL
 
-void __oslo_hash_table_init_impl(void** ht, size_t sz);
+OSLO_API_DECL void __oslo_hash_table_init_impl(void** ht, size_t sz);
 
 #define oslo_hash_table_init(__HT, __K, __V)\
     do {\
@@ -1299,6 +1330,18 @@ void __oslo_hash_table_iter_advance_func(void** data, size_t key_len, size_t val
 
 #pragma endregion
 
+#pragma region TIME
+// Time
+OSLO_API_DECL float oslo_get_delta_time();
+OSLO_API_DECL float oslo_get_elapsed_time();
+#pragma endregion
+
+#pragma region OSLO_MAIN
+
+OSLO_API_DECL oslo_desc_t oslo_main();
+
+#pragma endregion
+
 #ifdef OSLO_IMPL
 #pragma region EXTERNAL_IMPL
 
@@ -1356,12 +1399,6 @@ void oslo_audio_shutdown();
 // Input
 void oslo_input_init(oslo_t* oslo);
 void oslo_update_input(oslo_input_t* input);
-#pragma endregion
-
-#pragma region TIME
-// Time
-float oslo_get_delta_time();
-float oslo_get_elapsed_time();
 #pragma endregion
 
 #pragma region SHADERS
@@ -1455,12 +1492,6 @@ static vec4 quad_positions[] =
 };
 #pragma endregion
 
-#pragma region OSLO_MAIN
-
-oslo_desc_t oslo_main();
-
-#pragma endregion
-
 #pragma region UTILITY_FUNCS
 
 #define oslo_min(A, B) ((A) < (B) ? (A) : (B))
@@ -1537,17 +1568,6 @@ bool oslo_platform_file_exists(const char* file_path)
         return true;
     }
     return false;
-}
-
-oslo_inline uint32_t 
-string_length(const char* txt)
-{
-    uint32_t sz = 0;
-    while (txt != NULL && txt[ sz ] != '\0') 
-    {
-        sz++;
-    }
-    return sz;
 }
 
 oslo_inline void
@@ -1651,13 +1671,11 @@ int main(int argc, char *argv[])
     // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    if (desc.debug_graphics)
-    {
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    }
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+   
+    //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 #endif
 
     
@@ -2669,6 +2687,11 @@ void __glfw_drop_callback(GLFWwindow* window)
 void oslo_set_window_title(const char* title)
 {
     glfwSetWindowTitle(instance->window, title);
+}
+
+void* oslo_get_window_native_handle()
+{
+    return instance->window;
 }
 
 float oslo_get_delta_time()
